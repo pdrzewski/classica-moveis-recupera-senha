@@ -4,10 +4,10 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 @SpringBootApplication
-public class RecuperaPsswdApplication {
+public class RecuperaPasswd {
 
 	public static void main(String[] args) {
-		SpringApplication.run(RecuperaPsswdApplication.class, args);
+		SpringApplication.run(RecuperaPasswd.class, args);
 	}
 
 }
