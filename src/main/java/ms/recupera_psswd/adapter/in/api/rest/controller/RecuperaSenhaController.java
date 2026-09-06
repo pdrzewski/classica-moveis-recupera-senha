@@ -17,10 +17,6 @@ public class RecuperaSenhaController {
     @Autowired
     private RecuperaSenhaPortIn recuperaSenhaPortIn;
 
-    /**
-     * POST /api/v1/recupera-senha
-     * Solicita recuperação de senha via email
-     */
     @PostMapping
     public ResponseEntity<RecuperaSenhaResponse> solicitarRecuperaSenha(
             @RequestBody RecuperaSenhaRequest request) {
@@ -43,10 +39,6 @@ public class RecuperaSenhaController {
         }
     }
 
-    /**
-     * POST /api/v1/recupera-senha/{transactionId}/verificar
-     * Verifica se o token de recuperação é válido
-     */
     @PostMapping("/{transactionId}/verificar")
     public ResponseEntity<RecuperaSenhaResponse> verificarToken(
             @PathVariable String transactionId,
@@ -70,10 +62,6 @@ public class RecuperaSenhaController {
         }
     }
 
-    /**
-     * POST /api/v1/recupera-senha/{transactionId}/resetar
-     * Reseta a senha do usuário
-     */
     @PostMapping("/{transactionId}/resetar")
     public ResponseEntity<RecuperaSenhaResponse> resetarSenha(
             @PathVariable String transactionId,

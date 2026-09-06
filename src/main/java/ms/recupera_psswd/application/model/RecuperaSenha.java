@@ -1,5 +1,7 @@
 package ms.recupera_psswd.application.model;
 
+import ms.recupera_psswd.application.enums.RecuperaSenhaStatus;
+
 import java.time.LocalDateTime;
 
 public class RecuperaSenha {

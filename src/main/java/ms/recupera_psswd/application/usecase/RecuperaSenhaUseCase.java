@@ -2,7 +2,7 @@ package ms.recupera_psswd.application.usecase;
 
 import ms.recupera_psswd.adapter.out.messaging.producer.EmailProducer;
 import ms.recupera_psswd.application.model.RecuperaSenha;
-import ms.recupera_psswd.application.model.RecuperaSenhaStatus;
+import ms.recupera_psswd.application.enums.RecuperaSenhaStatus;
 import ms.recupera_psswd.application.port.in.RecuperaSenhaPortIn;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;

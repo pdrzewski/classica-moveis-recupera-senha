@@ -19,7 +19,6 @@ public class EmailConsumer {
             System.out.println("Recebido evento de email para: " + event.getEmail());
             System.out.println("Transaction ID: " + event.getTransactionId());
 
-            // Enviar o email
             emailService.enviarEmail(
                 event.getEmail(),
                 event.getAssunto(),

@@ -14,13 +14,10 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 public class RabbitMQConfig {
 
-    // Queue names
     public static final String EMAIL_QUEUE = "recupera-senha-email-queue";
 
-    // Exchange name
     public static final String EXCHANGE_NAME = "recupera-senha-exchange";
 
-    // Routing key
     public static final String ROUTING_KEY = "recupera-senha.email";
 
     @Bean
