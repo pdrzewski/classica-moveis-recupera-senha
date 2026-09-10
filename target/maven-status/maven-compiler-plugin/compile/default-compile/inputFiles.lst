@@ -9,10 +9,10 @@
 /home/void/IdeaProjects/classica-moveis-recupera-senha/src/main/java/ms/recupera_psswd/adapter/out/messaging/consumer/EmailConsumer.java
 /home/void/IdeaProjects/classica-moveis-recupera-senha/src/main/java/ms/recupera_psswd/adapter/out/messaging/event/EnviarEmailEvent.java
 /home/void/IdeaProjects/classica-moveis-recupera-senha/src/main/java/ms/recupera_psswd/adapter/out/messaging/producer/EmailProducer.java
-/home/void/IdeaProjects/classica-moveis-recupera-senha/src/main/java/ms/recupera_psswd/application/exception/DadoInvalidoException.java
-/home/void/IdeaProjects/classica-moveis-recupera-senha/src/main/java/ms/recupera_psswd/application/exception/TokenExpiradoException.java
-/home/void/IdeaProjects/classica-moveis-recupera-senha/src/main/java/ms/recupera_psswd/application/model/RecuperaSenha.java
-/home/void/IdeaProjects/classica-moveis-recupera-senha/src/main/java/ms/recupera_psswd/application/model/RecuperaSenhaStatus.java
 /home/void/IdeaProjects/classica-moveis-recupera-senha/src/main/java/ms/recupera_psswd/application/port/in/RecuperaSenhaPortIn.java
 /home/void/IdeaProjects/classica-moveis-recupera-senha/src/main/java/ms/recupera_psswd/application/port/out/RecuperaSenhaPortOut.java
 /home/void/IdeaProjects/classica-moveis-recupera-senha/src/main/java/ms/recupera_psswd/application/usecase/RecuperaSenhaUseCase.java
+/home/void/IdeaProjects/classica-moveis-recupera-senha/src/main/java/ms/recupera_psswd/domain/enums/RecuperaSenhaStatus.java
+/home/void/IdeaProjects/classica-moveis-recupera-senha/src/main/java/ms/recupera_psswd/domain/exception/DadoInvalidoException.java
+/home/void/IdeaProjects/classica-moveis-recupera-senha/src/main/java/ms/recupera_psswd/domain/exception/TokenExpiradoException.java
+/home/void/IdeaProjects/classica-moveis-recupera-senha/src/main/java/ms/recupera_psswd/domain/model/RecuperaSenha.java

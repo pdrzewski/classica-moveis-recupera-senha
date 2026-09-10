@@ -1,9 +1,9 @@
 package ms.recupera_psswd.application.usecase;
 
-import ms.recupera_psswd.adapter.out.messaging.producer.EmailProducer;
-import ms.recupera_psswd.application.model.RecuperaSenha;
-import ms.recupera_psswd.application.enums.RecuperaSenhaStatus;
+import ms.recupera_psswd.application.port.out.RecuperaSenhaPortOut;
 import ms.recupera_psswd.application.port.in.RecuperaSenhaPortIn;
+import ms.recupera_psswd.domain.exception.DadoInvalidoException;
+import ms.recupera_psswd.domain.model.RecuperaSenha;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -15,7 +15,6 @@ import java.util.concurrent.ConcurrentHashMap;
 @Service
 public class RecuperaSenhaUseCase implements RecuperaSenhaPortIn {
 
-    private static final Integer MAX_FAILED_ATTEMPTS = 5;
     private static final Integer TOKEN_EXPIRATION_HOURS = 24;
 
     /*
@@ -26,7 +25,7 @@ public class RecuperaSenhaUseCase implements RecuperaSenhaPortIn {
     private final Map<String, RecuperaSenha> recuperacoes = new ConcurrentHashMap<>();
 
     @Autowired
-    private EmailProducer emailProducer;
+    private RecuperaSenhaPortOut recuperaSenhaPortOut;
 
     @Value("${app.api.url:http://localhost:8080}")
     private String apiUrl;
@@ -35,7 +34,7 @@ public class RecuperaSenhaUseCase implements RecuperaSenhaPortIn {
     public RecuperaSenha solicitarRecuperaSenha(String email) {
         // Validate email
         if (email == null || email.trim().isEmpty()) {
-            throw new IllegalArgumentException("Email é obrigatório");
+            throw new DadoInvalidoException("Email é obrigatório");
         }
 
         // Generate transaction ID and recovery token
@@ -59,74 +58,39 @@ public class RecuperaSenhaUseCase implements RecuperaSenhaPortIn {
         );
 
         // Publish email event to RabbitMQ
-        emailProducer.publisharEmailRecuperaSenha(transactionId, email, recoveryToken, urlRecuperacao);
+        recuperaSenhaPortOut.publicarEmailRecuperaSenha(transactionId, email, recoveryToken, urlRecuperacao);
 
         return recuperaSenha;
     }
 
     @Override
     public RecuperaSenha verificarToken(String transactionId, String token) {
-        // Validate inputs
-        if (transactionId == null || transactionId.trim().isEmpty()) {
-            throw new IllegalArgumentException("Transaction ID é obrigatório");
-        }
-        if (token == null || token.trim().isEmpty()) {
-            throw new IllegalArgumentException("Token é obrigatório");
-        }
+        RecuperaSenha recuperaSenha = buscarRecuperacao(transactionId);
 
-        RecuperaSenha recuperaSenha = recuperacoes.get(transactionId);
-
-        if (recuperaSenha == null) {
-            throw new IllegalArgumentException("Solicitação de recuperação de senha não encontrada");
-        }
-
-        // Check if token is expired
-        if (recuperaSenha.isTokenExpired()) {
-            recuperaSenha.setStatus(RecuperaSenhaStatus.EXPIRED);
-            throw new IllegalArgumentException("Token de recuperação expirado");
-        }
-
-        if (recuperaSenha.getStatus() == RecuperaSenhaStatus.CANCELLED) {
-            throw new IllegalArgumentException("Solicitação de recuperação de senha cancelada");
-        }
-
-        if (recuperaSenha.getStatus() == RecuperaSenhaStatus.COMPLETED) {
-            throw new IllegalArgumentException("Token de recuperação já utilizado");
-        }
-
-        // Check if token matches
-        if (!recuperaSenha.getRecoveryToken().equals(token)) {
-            recuperaSenha.incrementFailedAttempts();
-
-            // Lock if too many failed attempts
-            if (recuperaSenha.getFailedAttempts() >= MAX_FAILED_ATTEMPTS) {
-                recuperaSenha.setStatus(RecuperaSenhaStatus.CANCELLED);
-            }
-
-            throw new IllegalArgumentException("Token inválido");
-        }
-
-        // Token is valid
-        recuperaSenha.setStatus(RecuperaSenhaStatus.VERIFIED);
-        recuperaSenha.setFailedAttempts(0); // Reset attempts on success
+        recuperaSenha.verificarToken(token);
         return recuperaSenha;
     }
 
     @Override
     public RecuperaSenha resetarSenha(String transactionId, String token, String novaSenha) {
-        // Verify token first
-        RecuperaSenha recuperaSenha = verificarToken(transactionId, token);
+        RecuperaSenha recuperaSenha = buscarRecuperacao(transactionId);
 
-        // Validate new password
-        if (novaSenha == null || novaSenha.length() < 8) {
-            throw new IllegalArgumentException("Senha deve ter pelo menos 8 caracteres");
-        }
-
-        // Mark as completed
-        recuperaSenha.setStatus(RecuperaSenhaStatus.COMPLETED);
-        recuperaSenha.setUsedAt(LocalDateTime.now());
+        recuperaSenha.resetarSenha(token, novaSenha);
 
         // TODO: Update the user's password in the user database.
+
+        return recuperaSenha;
+    }
+
+    private RecuperaSenha buscarRecuperacao(String transactionId) {
+        if (transactionId == null || transactionId.trim().isEmpty()) {
+            throw new DadoInvalidoException("Transaction ID é obrigatório");
+        }
+
+        RecuperaSenha recuperaSenha = recuperacoes.get(transactionId);
+        if (recuperaSenha == null) {
+            throw new DadoInvalidoException("Solicitação de recuperação de senha não encontrada");
+        }
 
         return recuperaSenha;
     }
