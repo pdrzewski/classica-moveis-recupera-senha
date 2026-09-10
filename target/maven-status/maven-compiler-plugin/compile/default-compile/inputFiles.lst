@@ -1,4 +1,5 @@
 /home/void/IdeaProjects/classica-moveis-recupera-senha/src/main/java/ms/recupera_psswd/RecuperaPasswd.java
+/home/void/IdeaProjects/classica-moveis-recupera-senha/src/main/java/ms/recupera_psswd/adapter/config/ApplicationBeansConfig.java
 /home/void/IdeaProjects/classica-moveis-recupera-senha/src/main/java/ms/recupera_psswd/adapter/in/api/rest/controller/RecuperaSenhaController.java
 /home/void/IdeaProjects/classica-moveis-recupera-senha/src/main/java/ms/recupera_psswd/adapter/in/api/rest/dto/RecuperaSenhaRequest.java
 /home/void/IdeaProjects/classica-moveis-recupera-senha/src/main/java/ms/recupera_psswd/adapter/in/api/rest/dto/RecuperaSenhaResponse.java

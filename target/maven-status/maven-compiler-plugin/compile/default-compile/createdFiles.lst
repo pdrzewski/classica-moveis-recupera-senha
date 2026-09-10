@@ -8,6 +8,7 @@ ms/recupera_psswd/adapter/out/HelloWorldPortOut.class
 ms/recupera_psswd/adapter/in/api/rest/dto/RecuperaSenhaResponse.class
 ms/recupera_psswd/adapter/out/messaging/producer/EmailProducer.class
 ms/recupera_psswd/application/port/in/RecuperaSenhaPortIn.class
+ms/recupera_psswd/adapter/config/ApplicationBeansConfig.class
 ms/recupera_psswd/adapter/out/messaging/consumer/EmailConsumer.class
 ms/recupera_psswd/adapter/in/api/rest/controller/RecuperaSenhaController.class
 ms/recupera_psswd/adapter/in/api/rest/dto/ResetSenhaRequest.class
