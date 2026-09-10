@@ -8,13 +8,22 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import java.time.LocalDateTime;
+import java.util.Map;
 import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
 
 @Service
 public class RecuperaSenhaUseCase implements RecuperaSenhaPortIn {
 
     private static final Integer MAX_FAILED_ATTEMPTS = 5;
     private static final Integer TOKEN_EXPIRATION_HOURS = 24;
+
+    /*
+     * Temporary persistence for the recovery flow. This keeps the request
+     * available between the POST that sends the email and the click on the
+     * link. Replace this map with a database-backed adapter in production.
+     */
+    private final Map<String, RecuperaSenha> recuperacoes = new ConcurrentHashMap<>();
 
     @Autowired
     private EmailProducer emailProducer;
@@ -36,8 +45,10 @@ public class RecuperaSenhaUseCase implements RecuperaSenhaPortIn {
         // Create expiration time (24 hours from now)
         LocalDateTime expiresAt = LocalDateTime.now().plusHours(TOKEN_EXPIRATION_HOURS);
 
-        // Create and return the RecuperaSenha object
+        // Store the request before publishing the email event. The link can
+        // only be verified if the request is already available here.
         RecuperaSenha recuperaSenha = new RecuperaSenha(transactionId, email, recoveryToken, expiresAt);
+        recuperacoes.put(transactionId, recuperaSenha);
 
         // Build the recovery URL
         String urlRecuperacao = String.format(
@@ -49,8 +60,6 @@ public class RecuperaSenhaUseCase implements RecuperaSenhaPortIn {
 
         // Publish email event to RabbitMQ
         emailProducer.publisharEmailRecuperaSenha(transactionId, email, recoveryToken, urlRecuperacao);
-
-        // TODO: Implement persistence layer to save recovery request
 
         return recuperaSenha;
     }
@@ -65,8 +74,7 @@ public class RecuperaSenhaUseCase implements RecuperaSenhaPortIn {
             throw new IllegalArgumentException("Token é obrigatório");
         }
 
-        // TODO: Fetch from database
-        RecuperaSenha recuperaSenha = null; // Placeholder
+        RecuperaSenha recuperaSenha = recuperacoes.get(transactionId);
 
         if (recuperaSenha == null) {
             throw new IllegalArgumentException("Solicitação de recuperação de senha não encontrada");
@@ -75,8 +83,15 @@ public class RecuperaSenhaUseCase implements RecuperaSenhaPortIn {
         // Check if token is expired
         if (recuperaSenha.isTokenExpired()) {
             recuperaSenha.setStatus(RecuperaSenhaStatus.EXPIRED);
-            // TODO: Save to database
             throw new IllegalArgumentException("Token de recuperação expirado");
+        }
+
+        if (recuperaSenha.getStatus() == RecuperaSenhaStatus.CANCELLED) {
+            throw new IllegalArgumentException("Solicitação de recuperação de senha cancelada");
+        }
+
+        if (recuperaSenha.getStatus() == RecuperaSenhaStatus.COMPLETED) {
+            throw new IllegalArgumentException("Token de recuperação já utilizado");
         }
 
         // Check if token matches
@@ -88,15 +103,12 @@ public class RecuperaSenhaUseCase implements RecuperaSenhaPortIn {
                 recuperaSenha.setStatus(RecuperaSenhaStatus.CANCELLED);
             }
 
-            // TODO: Save to database
             throw new IllegalArgumentException("Token inválido");
         }
 
         // Token is valid
         recuperaSenha.setStatus(RecuperaSenhaStatus.VERIFIED);
         recuperaSenha.setFailedAttempts(0); // Reset attempts on success
-        // TODO: Save to database
-
         return recuperaSenha;
     }
 
@@ -114,8 +126,7 @@ public class RecuperaSenhaUseCase implements RecuperaSenhaPortIn {
         recuperaSenha.setStatus(RecuperaSenhaStatus.COMPLETED);
         recuperaSenha.setUsedAt(LocalDateTime.now());
 
-        // TODO: Update user password in database
-        // TODO: Save recuperaSenha to database
+        // TODO: Update the user's password in the user database.
 
         return recuperaSenha;
     }

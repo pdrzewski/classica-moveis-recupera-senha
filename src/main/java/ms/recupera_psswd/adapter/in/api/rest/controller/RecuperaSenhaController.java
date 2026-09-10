@@ -39,6 +39,16 @@ public class RecuperaSenhaController {
         }
     }
 
+    /**
+     * Endpoint used directly by the link sent in the recovery email.
+     */
+    @GetMapping("/{transactionId}")
+    public ResponseEntity<RecuperaSenhaResponse> verificarTokenPeloLink(
+            @PathVariable String transactionId,
+            @RequestParam String token) {
+        return verificarToken(transactionId, token);
+    }
+
     @PostMapping("/{transactionId}/verificar")
     public ResponseEntity<RecuperaSenhaResponse> verificarToken(
             @PathVariable String transactionId,
