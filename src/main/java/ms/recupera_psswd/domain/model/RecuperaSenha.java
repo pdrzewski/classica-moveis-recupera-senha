@@ -1,10 +1,14 @@
-package ms.recupera_psswd.application.model;
+package ms.recupera_psswd.domain.model;
 
-import ms.recupera_psswd.application.enums.RecuperaSenhaStatus;
+import ms.recupera_psswd.domain.enums.RecuperaSenhaStatus;
+import ms.recupera_psswd.domain.exception.DadoInvalidoException;
+import ms.recupera_psswd.domain.exception.TokenExpiradoException;
 
 import java.time.LocalDateTime;
 
 public class RecuperaSenha {
+
+    private static final int MAX_FAILED_ATTEMPTS = 5;
 
     private String transactionId;
     private String email;
@@ -23,6 +27,55 @@ public class RecuperaSenha {
         this.expiresAt = expiresAt;
         this.status = RecuperaSenhaStatus.PENDING;
         this.failedAttempts = 0;
+    }
+
+    public void verificarToken(String token) {
+        if (token == null || token.trim().isEmpty()) {
+            throw new DadoInvalidoException("Token é obrigatório");
+        }
+
+        if (isTokenExpired()) {
+            status = RecuperaSenhaStatus.EXPIRED;
+            throw new TokenExpiradoException("Token de recuperação expirado");
+        }
+
+        if (status == RecuperaSenhaStatus.CANCELLED) {
+            throw new DadoInvalidoException("Solicitação de recuperação de senha cancelada");
+        }
+
+        if (status == RecuperaSenhaStatus.COMPLETED) {
+            throw new DadoInvalidoException("Token de recuperação já utilizado");
+        }
+
+        if (!recoveryToken.equals(token)) {
+            incrementFailedAttempts();
+            if (failedAttempts >= MAX_FAILED_ATTEMPTS) {
+                status = RecuperaSenhaStatus.CANCELLED;
+            }
+            throw new DadoInvalidoException("Token inválido");
+        }
+
+        status = RecuperaSenhaStatus.VERIFIED;
+        failedAttempts = 0;
+    }
+
+    public void resetarSenha(String token, String novaSenha) {
+        verificarToken(token);
+
+        if (novaSenha == null || novaSenha.length() < 8) {
+            throw new DadoInvalidoException("Senha deve ter pelo menos 8 caracteres");
+        }
+
+        status = RecuperaSenhaStatus.COMPLETED;
+        usedAt = LocalDateTime.now();
+    }
+
+    public boolean isTokenExpired() {
+        return LocalDateTime.now().isAfter(expiresAt);
+    }
+
+    private void incrementFailedAttempts() {
+        failedAttempts++;
     }
 
     public String getTransactionId() {
@@ -87,13 +140,5 @@ public class RecuperaSenha {
 
     public void setFailedAttempts(Integer failedAttempts) {
         this.failedAttempts = failedAttempts;
-    }
-
-    public boolean isTokenExpired() {
-        return LocalDateTime.now().isAfter(expiresAt);
-    }
-
-    public void incrementFailedAttempts() {
-        this.failedAttempts++;
     }
 }

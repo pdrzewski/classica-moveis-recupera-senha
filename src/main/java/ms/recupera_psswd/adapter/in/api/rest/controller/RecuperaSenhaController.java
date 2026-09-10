@@ -3,7 +3,7 @@ package ms.recupera_psswd.adapter.in.api.rest.controller;
 import ms.recupera_psswd.adapter.in.api.rest.dto.RecuperaSenhaRequest;
 import ms.recupera_psswd.adapter.in.api.rest.dto.RecuperaSenhaResponse;
 import ms.recupera_psswd.adapter.in.api.rest.dto.ResetSenhaRequest;
-import ms.recupera_psswd.application.model.RecuperaSenha;
+import ms.recupera_psswd.domain.model.RecuperaSenha;
 import ms.recupera_psswd.application.port.in.RecuperaSenhaPortIn;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;

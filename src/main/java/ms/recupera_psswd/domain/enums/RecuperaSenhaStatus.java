@@ -1,4 +1,4 @@
-package ms.recupera_psswd.application.enums;
+package ms.recupera_psswd.domain.enums;
 
 public enum RecuperaSenhaStatus {
     PENDING,
@@ -7,4 +7,3 @@ public enum RecuperaSenhaStatus {
     EXPIRED,
     CANCELLED
 }
-
